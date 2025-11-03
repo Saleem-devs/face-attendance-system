@@ -87,6 +87,22 @@ def is_already_marked_today(student_id):
     return count > 0
 
 
+def students_marked_today():
+    today = datetime.now().strftime("%Y-%m-%d")
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT student_id FROM attendance WHERE attendance_date = ?
+        """,
+        (today,),
+    )
+    rows = cur.fetchall()
+    marked_students = [row[0] for row in rows]
+    conn.close()
+    return marked_students
+
+
 def mark_attendance(student_id, student_name):
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
@@ -141,7 +157,8 @@ def start_attendance_session():
     if not cap.isOpened():
         return False, "Could not open camera"
 
-    marked_today = set()
+    marked_students = students_marked_today()
+    marked_today = set(marked_students)
 
     print("\n================= ATTENDANCE SESSION =================")
     print("• Look at the camera")
