@@ -38,6 +38,7 @@ def create_session(
                 user_agent,
             ),
         )
+        conn.commit()
 
     return session_id
 
@@ -64,6 +65,7 @@ def validate_session(session_id: str) -> Optional[Dict]:
         expires_at = datetime.fromisoformat(row["expires_at"])
         if datetime.now() > expires_at:
             cursor.execute("DELETE FROM sessions WHERE session_id = ?", (session_id,))
+            conn.commit()
             return None
 
         cursor.execute(
@@ -74,6 +76,7 @@ def validate_session(session_id: str) -> Optional[Dict]:
             """,
             (datetime.now().isoformat(), session_id),
         )
+        conn.commit()
 
         return {"user_id": row["user_id"], "username": row["username"]}
 
@@ -86,4 +89,5 @@ def delete_session(session_id: str) -> bool:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM sessions WHERE session_id = ?", (session_id,))
         deleted = cursor.rowcount > 0
+        conn.commit()
         return deleted
