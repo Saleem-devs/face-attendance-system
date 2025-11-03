@@ -7,10 +7,13 @@ import webbrowser
 from theme import *
 from login_view import LoginView
 from change_password_view import ChangePasswordView
+from backend_manager import BackendManager
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ICON_PATH = os.path.join(BASE_DIR, "app_icon.png")
 
 logged_in_username = None
+backend_manager = BackendManager()
 
 
 def run_register():
@@ -27,9 +30,22 @@ def run_attendance():
         messagebox.showerror("Error", f"Failed to start attendance: \n{e}")
 
 
+def open_dashboard():
+    if not backend_manager.open_dashboard():
+        messagebox.showerror(
+            "Error",
+            "Failed to start web dashboard. Please check if port 8000 is available.",
+        )
+
+
 def open_change_password():
     change_password_view = ChangePasswordView(root, logged_in_username)
     change_password_view.show()
+
+
+def on_closing():
+    backend_manager.stop()
+    root.destroy()
 
 
 login = LoginView(None)
@@ -38,10 +54,17 @@ if not login.show():
 
 logged_in_username = login.username
 
+
 root = tk.Tk()
 root.title("Face Attendance System")
-root.geometry("900x700")
+# root.geometry("900x700")
 root.config(bg=BG_PRIMARY)
+root.protocol("WM_DELETE_WINDOW", on_closing)
+
+icon = tk.PhotoImage(file=ICON_PATH)
+root.iconphoto(False, icon)
+
+backend_manager.start()
 
 main_container = tk.Frame(root, bg=BG_PRIMARY)
 main_container.pack(expand=True, fill="both", padx=40, pady=40)
@@ -184,6 +207,16 @@ attendance_card = create_feature_card(
     "Start Session",
     run_attendance,
     ACCENT_GREEN,
+)
+
+dashboard_card = create_feature_card(
+    cards_container,
+    "◐",
+    "Web Dashboard",
+    "Open the web dashboard to view attendance reports, manage students, and export data.",
+    "Open Web Dashboard",
+    open_dashboard,
+    ACCENT_BLUE,
 )
 
 footer_frame = tk.Frame(root, bg=BG_PRIMARY)

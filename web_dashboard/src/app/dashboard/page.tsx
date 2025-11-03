@@ -90,9 +90,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Overview and today&apos;s attendance
-          </p>
+          <p className="text-sm text-muted-foreground">Overview</p>
         </div>
         <Button
           variant="secondary"
@@ -137,7 +135,7 @@ export default function DashboardPage() {
       </div>
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-medium">Today&apos;s attendance</h2>
+          <h2 className="text-lg font-medium">Attendance Record</h2>
           <div className="flex items-center gap-3">
             <div className="hidden sm:block text-sm text-muted-foreground">
               Select date
