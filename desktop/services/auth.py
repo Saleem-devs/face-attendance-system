@@ -3,7 +3,8 @@ import bcrypt
 import os
 from pathlib import Path
 
-DB_DIR = "db"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DB_DIR = os.path.join(BASE_DIR, "db")
 DB_PATH = os.path.join(DB_DIR, "attendance.db")
 
 Path(DB_DIR).mkdir(parents=True, exist_ok=True)
@@ -12,12 +13,17 @@ Path(DB_DIR).mkdir(parents=True, exist_ok=True)
 def hash_password(password):
     pass_bytes = password.encode("utf-8")
     salt = bcrypt.gensalt()
-    return bcrypt.hashpw(pass_bytes, salt)
+    hash_bytes = bcrypt.hashpw(pass_bytes, salt)
+    return hash_bytes.decode("utf-8")
 
 
 def verify_password(password, password_hash):
     pass_bytes = password.encode("utf-8")
-    return bcrypt.checkpw(pass_bytes, password_hash)
+    if isinstance(password_hash, str):
+        hash_bytes = password_hash.encode("utf-8")
+    else:
+        hash_bytes = password_hash
+    return bcrypt.checkpw(pass_bytes, hash_bytes)
 
 
 def init_auth_database():

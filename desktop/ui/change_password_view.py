@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
-from auth import change_password
-from theme import *
+from services.auth import change_password
+from ui.theme import *
 
 
 class ChangePasswordView:

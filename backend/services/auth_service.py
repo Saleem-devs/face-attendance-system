@@ -3,19 +3,21 @@ from backend.database import get_db_connection
 from backend.services.session_service import create_session
 
 
-def hash_password(password: str) -> bytes:
+def hash_password(password: str) -> str:
     password_bytes = password.encode("utf-8")
     salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password_bytes, salt)
+    hash_bytes = bcrypt.hashpw(password_bytes, salt)
+    return hash_bytes.decode("utf-8")
 
 
 def verify_password(password: str, password_hash) -> bool:
     password_bytes = password.encode("utf-8")
-    hash_bytes = (
-        password_hash
-        if isinstance(password_hash, (bytes, bytearray))
-        else str(password_hash).encode("utf-8")
-    )
+    if isinstance(password_hash, str):
+        hash_bytes = password_hash.encode("utf-8")
+    elif isinstance(password_hash, bytes):
+        hash_bytes = password_hash
+    else:
+        hash_bytes = str(password_hash).encode("utf-8")
     return bcrypt.checkpw(password_bytes, hash_bytes)
 
 

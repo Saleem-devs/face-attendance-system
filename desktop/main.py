@@ -4,13 +4,14 @@ import subprocess
 import sys
 import os
 import webbrowser
-from theme import *
-from login_view import LoginView
-from change_password_view import ChangePasswordView
-from backend_manager import BackendManager
+from ui.theme import *
+from ui.login_view import LoginView
+from ui.change_password_view import ChangePasswordView
+from services.backend_manager import BackendManager
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ICON_PATH = os.path.join(BASE_DIR, "app_icon.png")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DESKTOP_DIR = os.path.dirname(os.path.abspath(__file__))
+ICON_PATH = os.path.join(DESKTOP_DIR, "assets", "app_icon.png")
 
 logged_in_username = None
 backend_manager = BackendManager()
@@ -18,14 +19,18 @@ backend_manager = BackendManager()
 
 def run_register():
     try:
-        subprocess.run([sys.executable, os.path.join(BASE_DIR, "register.py")])
+        subprocess.run(
+            [sys.executable, os.path.join(DESKTOP_DIR, "core", "registration.py")]
+        )
     except Exception as e:
         messagebox.showerror("Error", f"Failed to start registration:\n{e}")
 
 
 def run_attendance():
     try:
-        subprocess.run([sys.executable, os.path.join(BASE_DIR, "attendance.py")])
+        subprocess.run(
+            [sys.executable, os.path.join(DESKTOP_DIR, "core", "attendance.py")]
+        )
     except Exception as e:
         messagebox.showerror("Error", f"Failed to start attendance: \n{e}")
 
@@ -57,12 +62,12 @@ logged_in_username = login.username
 
 root = tk.Tk()
 root.title("Face Attendance System")
-# root.geometry("900x700")
 root.config(bg=BG_PRIMARY)
 root.protocol("WM_DELETE_WINDOW", on_closing)
 
-icon = tk.PhotoImage(file=ICON_PATH)
-root.iconphoto(False, icon)
+if os.path.exists(ICON_PATH):
+    icon = tk.PhotoImage(file=ICON_PATH)
+    root.iconphoto(False, icon)
 
 backend_manager.start()
 

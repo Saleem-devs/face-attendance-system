@@ -7,12 +7,16 @@ from datetime import datetime
 from pathlib import Path
 import tkinter as tk
 from tkinter import messagebox
-from theme import *
+import sys
 
-DB_DIR = "db"
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from ui.theme import *
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DB_DIR = os.path.join(BASE_DIR, "db")
 DB_PATH = os.path.join(DB_DIR, "attendance.db")
-PHOTOS_DIR = "data/photos"
-ENCODINGS_DIR = "data/encodings"
+PHOTOS_DIR = os.path.join(BASE_DIR, "data", "photos")
+ENCODINGS_DIR = os.path.join(BASE_DIR, "data", "encodings")
 SAMPLES_PER_STUDENT = 5
 DETECTION_MODEL = "hog"
 

@@ -6,7 +6,7 @@ import socket
 import webbrowser
 from threading import Thread
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BACKEND_PORT = 8000
 DASHBOARD_URL = f"http://localhost:{BACKEND_PORT}"
 

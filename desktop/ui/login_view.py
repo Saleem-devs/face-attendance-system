@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
-from auth import authenticate
-from theme import *
+from services.auth import authenticate
+from ui.theme import *
 
 
 class LoginView:
@@ -14,17 +14,11 @@ class LoginView:
     def show(self):
         self.root = tk.Tk()
         self.root.title("Login - Face Attendance System")
-        self.root.geometry("500x550")
         self.root.config(bg=BG_PRIMARY)
         self.root.resizable(True, True)
         self.root.minsize(500, 550)
 
         self.root.update_idletasks()
-        width = 500
-        height = 550
-        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.root.winfo_screenheight() // 2) - (height // 2)
-        self.root.geometry(f"{width}x{height}+{x}+{y}")
 
         main_container = tk.Frame(self.root, bg=BG_PRIMARY)
         main_container.pack(expand=True, fill="both", padx=50, pady=50)
