@@ -1,4 +1,6 @@
 import os
+import sys
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -8,8 +10,22 @@ from backend.routes.students import router as students_router
 from backend.routes.attendance import router as attendance_router
 from backend.routes.stats import router as stats_router
 from backend.config import CORS_ORIGINS
+from backend.database import (
+    init_sessions_table,
+    init_users_table,
+    init_students_and_attendance_tables,
+)
 
-app = FastAPI(title="Face Attendance API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_users_table()
+    init_sessions_table()
+    init_students_and_attendance_tables()
+    yield
+
+
+app = FastAPI(title="Face Attendance API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,32 +46,20 @@ def health():
     return {"status": "ok"}
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_DIR = os.path.join(BASE_DIR, "web_dashboard", "out")
+if getattr(sys, "frozen", False):
+    BASE_DIR = os.path.dirname(sys.executable)
+    CANDIDATE_STATIC_DIRS = [
+        os.path.join(BASE_DIR, "web_dashboard", "out"),
+        os.path.join(os.path.dirname(BASE_DIR), "Resources", "web_dashboard", "out"),
+    ]
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    CANDIDATE_STATIC_DIRS = [os.path.join(BASE_DIR, "web_dashboard", "out")]
+STATIC_DIR = next((p for p in CANDIDATE_STATIC_DIRS if os.path.exists(p)), None)
 
-if os.path.exists(STATIC_DIR):
+if STATIC_DIR and os.path.exists(STATIC_DIR):
     _next_static = os.path.join(STATIC_DIR, "_next", "static")
     if os.path.exists(_next_static):
         app.mount("/_next/static", StaticFiles(directory=_next_static), name="static")
 
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        if full_path.startswith("api/"):
-            from fastapi import HTTPException
-
-            raise HTTPException(status_code=404, detail="Not found")
-
-        if full_path.startswith("_next/"):
-            return {"error": "Not found"}, 404
-
-        file_path = os.path.join(STATIC_DIR, full_path)
-        if os.path.exists(file_path) and os.path.isfile(file_path):
-            return FileResponse(file_path)
-
-        index_path = os.path.join(STATIC_DIR, "index.html")
-        if os.path.exists(index_path):
-            return FileResponse(index_path)
-
-        from fastapi import HTTPException
-
-        raise HTTPException(status_code=404, detail="Not found")
+    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="spa")

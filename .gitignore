@@ -7,6 +7,8 @@ __pycache__/
 *.jpeg
 *.png
 
+dist/
+
 env/
 venv/
 .venv/

@@ -9,10 +9,17 @@ import tkinter as tk
 from tkinter import messagebox
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if getattr(sys, "frozen", False):
+    BASE_DIR = os.path.dirname(sys.executable)
+    sys.path.insert(0, os.path.join(BASE_DIR, "desktop"))
+else:
+    BASE_DIR = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from ui.theme import *
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DB_DIR = os.path.join(BASE_DIR, "db")
 DB_PATH = os.path.join(DB_DIR, "attendance.db")
 DETECTION_MODEL = "hog"
@@ -54,9 +61,16 @@ def load_all_students():
 
     students_data = []
     for student_id, name, encoding_path in rows:
-        if encoding_path and os.path.exists(encoding_path):
+        candidate = None
+        if encoding_path:
+            if os.path.isabs(encoding_path) and os.path.exists(encoding_path):
+                candidate = encoding_path
+            else:
+                base = os.path.basename(encoding_path)
+                candidate = os.path.join(BASE_DIR, "data", "encodings", base)
+        if candidate and os.path.exists(candidate):
             try:
-                encodings = np.load(encoding_path)
+                encodings = np.load(candidate)
                 if encodings.ndim == 2:
                     mean_encoding = np.mean(encodings, axis=0)
                 else:
@@ -72,7 +86,7 @@ def load_all_students():
                 print(f"Error loading encoding for {student_id}: {e}")
                 continue
 
-    return students_data
+    return students_data, len(rows)
 
 
 def is_already_marked_today(student_id):
@@ -141,10 +155,15 @@ def choose_camera_index():
 
 def start_attendance_session():
     init_database()
-    students_data = load_all_students()
+    students_data, total_rows = load_all_students()
 
-    if len(students_data) == 0:
+    if total_rows == 0:
         return False, "No registered students found. Please register students first."
+    if len(students_data) == 0:
+        return (
+            False,
+            "Registered students found but encodings are missing. Please re-capture faces.",
+        )
 
     cam_idx = choose_camera_index()
     if cam_idx < 0:
@@ -301,8 +320,11 @@ def start_attendance_session():
     return True, f"Session ended. {len(marked_today)} students marked today."
 
 
-def create_gui():
-    root = tk.Tk()
+def create_gui(parent=None):
+    if parent is not None:
+        root = tk.Toplevel(parent)
+    else:
+        root = tk.Tk()
     root.title("Mark Attendance")
     root.geometry("600x500")
     root.config(bg=BG_PRIMARY)
@@ -433,7 +455,8 @@ def create_gui():
 
     status_label.config(text="Click 'Start Session' to begin", fg=TEXT_MUTED)
 
-    root.mainloop()
+    if parent is None:
+        root.mainloop()
 
 
 if __name__ == "__main__":

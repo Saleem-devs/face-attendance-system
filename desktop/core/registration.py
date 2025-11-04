@@ -9,10 +9,17 @@ import tkinter as tk
 from tkinter import messagebox
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if getattr(sys, "frozen", False):
+    BASE_DIR = os.path.dirname(sys.executable)
+    sys.path.insert(0, os.path.join(BASE_DIR, "desktop"))
+else:
+    BASE_DIR = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from ui.theme import *
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DB_DIR = os.path.join(BASE_DIR, "db")
 DB_PATH = os.path.join(DB_DIR, "attendance.db")
 PHOTOS_DIR = os.path.join(BASE_DIR, "data", "photos")
@@ -254,8 +261,11 @@ def main():
         print(f"\n❌ {message}\n")
 
 
-def create_gui():
-    root = tk.Tk()
+def create_gui(parent=None):
+    if parent is not None:
+        root = tk.Toplevel(parent)
+    else:
+        root = tk.Tk()
     root.title("Register New Student")
     root.geometry("600x650")
     root.config(bg=BG_PRIMARY)
@@ -455,7 +465,8 @@ def create_gui():
 
     name_entry.focus()
 
-    root.mainloop()
+    if parent is None:
+        root.mainloop()
 
 
 if __name__ == "__main__":

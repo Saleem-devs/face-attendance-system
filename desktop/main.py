@@ -9,8 +9,13 @@ from ui.login_view import LoginView
 from ui.change_password_view import ChangePasswordView
 from services.backend_manager import BackendManager
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DESKTOP_DIR = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, "frozen", False):
+    BASE_DIR = os.path.dirname(sys.executable)
+    DESKTOP_DIR = os.path.join(BASE_DIR, "desktop")
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    DESKTOP_DIR = os.path.dirname(os.path.abspath(__file__))
+
 ICON_PATH = os.path.join(DESKTOP_DIR, "assets", "app_icon.png")
 
 logged_in_username = None
@@ -19,18 +24,18 @@ backend_manager = BackendManager()
 
 def run_register():
     try:
-        subprocess.run(
-            [sys.executable, os.path.join(DESKTOP_DIR, "core", "registration.py")]
-        )
+        from core.registration import create_gui
+
+        create_gui(root)
     except Exception as e:
         messagebox.showerror("Error", f"Failed to start registration:\n{e}")
 
 
 def run_attendance():
     try:
-        subprocess.run(
-            [sys.executable, os.path.join(DESKTOP_DIR, "core", "attendance.py")]
-        )
+        from core.attendance import create_gui
+
+        create_gui(root)
     except Exception as e:
         messagebox.showerror("Error", f"Failed to start attendance: \n{e}")
 
@@ -59,7 +64,6 @@ if not login.show():
 
 logged_in_username = login.username
 
-
 root = tk.Tk()
 root.title("Face Attendance System")
 root.config(bg=BG_PRIMARY)
@@ -69,7 +73,6 @@ if os.path.exists(ICON_PATH):
     icon = tk.PhotoImage(file=ICON_PATH)
     root.iconphoto(False, icon)
 
-backend_manager.start()
 
 main_container = tk.Frame(root, bg=BG_PRIMARY)
 main_container.pack(expand=True, fill="both", padx=40, pady=40)

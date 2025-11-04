@@ -5,8 +5,15 @@ import time
 import socket
 import webbrowser
 from threading import Thread
+import uvicorn
+from uvicorn import Config, Server
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if getattr(sys, "frozen", False):
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
 BACKEND_PORT = 8000
 DASHBOARD_URL = f"http://localhost:{BACKEND_PORT}"
 
@@ -20,6 +27,8 @@ class BackendManager:
     def __init__(self):
         self.process = None
         self.port = BACKEND_PORT
+        self._server = None
+        self._thread = None
 
     def start(self):
         if self.process is not None:
@@ -30,52 +39,51 @@ class BackendManager:
             return False
 
         try:
-            backend_path = os.path.join(BASE_DIR, "backend")
-            python_exe = sys.executable
+            if BASE_DIR not in sys.path:
+                sys.path.insert(0, BASE_DIR)
+            from backend.main import app
 
-            self.process = subprocess.Popen(
-                [
-                    python_exe,
-                    "-m",
-                    "uvicorn",
-                    "backend.main:app",
-                    "--host",
-                    "0.0.0.0",
-                    "--port",
-                    str(self.port),
-                ],
-                cwd=BASE_DIR,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                creationflags=(
-                    subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
-                ),
+            config = Config(
+                app=app,
+                host="127.0.0.1",
+                port=self.port,
+                reload=False,
+                log_level="info",
             )
+            server = Server(config)
+            self._server = server
 
-            for _ in range(30):
+            def run_server():
+                try:
+                    uvicorn.run(app, host="127.0.0.1", port=self.port, log_level="info")
+                except Exception as e:
+                    print(f"Uvicorn server failed: {e}")
+
+            thread = Thread(target=run_server, daemon=True)
+            thread.start()
+            self._thread = thread
+
+            for _ in range(40):
                 if is_port_in_use(self.port):
-                    time.sleep(0.5)
+                    time.sleep(0.25)
                     return True
-                if self.process.poll() is not None:
-                    return False
-                time.sleep(0.5)
+                time.sleep(0.25)
 
             return False
         except Exception as e:
-            print(f"Failed to start backend: {e}")
+            import traceback
+
+            error_msg = f"Failed to start backend: {e}\n{traceback.format_exc()}"
+            print(error_msg)
             return False
 
     def stop(self):
-        if self.process is not None:
-            try:
-                self.process.terminate()
-                self.process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                self.process.kill()
-            except Exception:
-                pass
-            finally:
-                self.process = None
+        try:
+            if self._server is not None:
+                self._server.should_exit = True
+            self._server = None
+        except Exception:
+            pass
 
     def open_dashboard(self):
         if not self.start():
