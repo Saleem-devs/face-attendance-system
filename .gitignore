@@ -25,3 +25,4 @@ db/*.db
 Thumbs.db
 
 !docs/**/*.jpeg
+!docs/**/*.png

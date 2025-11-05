@@ -4,7 +4,7 @@ AI-powered face recognition attendance system with desktop app and web dashboard
 
 This is a complete attendance tracking solution that combines a desktop application for face registration and real-time attendance marking with a web dashboard for viewing records, generating reports, and managing data. Everything runs locally on a single machine—no cloud services required.
 
-![Architecture](docs/architecture/architecture.jpeg)
+![Desktop App – Home](docs/screenshots/desktop_app_homepage.png)
 
 ## Table of Contents
 
@@ -63,6 +63,8 @@ This architecture was chosen because attendance data is sensitive, and running e
 ## Architecture
 
 The system follows a three-layer architecture:
+
+![Architecture](docs/architecture/architecture.jpeg)
 
 ### User Interaction Layer
 
@@ -359,6 +361,8 @@ Currently, the project doesn't include automated tests. Manual testing workflow:
 6. The app will capture 5 photos automatically
 7. Wait for "Registration successful" message
 
+![Register New Student](docs/screenshots/face_enrollment_page.png)
+
 **Tips for Best Results**:
 
 - Ensure good lighting
@@ -374,6 +378,8 @@ Currently, the project doesn't include automated tests. Manual testing workflow:
 4. A message will appear for each recognized student
 5. Click "Stop Session" when done
 
+![Attendance Capture](docs/screenshots/attendance_capture.png)
+
 **Features**:
 
 - Students already marked today won't be marked again
@@ -387,6 +393,8 @@ Currently, the project doesn't include automated tests. Manual testing workflow:
 3. View today's stats on the dashboard
 4. Use the date picker to view attendance for specific dates
 5. See weekly trends in the stats section
+
+![Web Dashboard](docs/screenshots/web_dashboard.png)
 
 ### Changing Password
 
