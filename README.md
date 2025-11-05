@@ -361,7 +361,7 @@ Currently, the project doesn't include automated tests. Manual testing workflow:
 6. The app will capture 5 photos automatically
 7. Wait for "Registration successful" message
 
-![Register New Student](docs/screenshots/face_enrollment_page.png)
+<!-- ![Register New Student](docs/screenshots/face_enrollment_page.png) -->
 
 **Tips for Best Results**:
 
@@ -378,7 +378,7 @@ Currently, the project doesn't include automated tests. Manual testing workflow:
 4. A message will appear for each recognized student
 5. Click "Stop Session" when done
 
-![Attendance Capture](docs/screenshots/attendance_capture.png)
+<!-- ![Attendance Capture](docs/screenshots/attendance_capture.png) -->
 
 **Features**:
 
@@ -394,7 +394,7 @@ Currently, the project doesn't include automated tests. Manual testing workflow:
 4. Use the date picker to view attendance for specific dates
 5. See weekly trends in the stats section
 
-![Web Dashboard](docs/screenshots/web_dashboard.png)
+<!-- ![Web Dashboard](docs/screenshots/web_dashboard.png) -->
 
 ### Changing Password
 
