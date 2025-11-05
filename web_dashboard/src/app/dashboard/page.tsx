@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { apiGet, today, apiPost } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -26,7 +26,6 @@ type Stats = {
   total_students: number;
   marked_today: number;
   attendance_rate_today: number;
-  total_attendance_records: number;
 };
 
 type AttendanceRow = {
@@ -109,7 +108,7 @@ export default function DashboardPage() {
         </Button>
       </div>
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="p-4">
           <p className="text-sm text-muted-foreground">Total students</p>
           <p className="text-2xl font-semibold">
@@ -124,12 +123,6 @@ export default function DashboardPage() {
           <p className="text-sm text-muted-foreground">Attendance rate</p>
           <p className="text-2xl font-semibold">
             {stats ? `${stats.attendance_rate_today}%` : "-"}
-          </p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Total records</p>
-          <p className="text-2xl font-semibold">
-            {stats?.total_attendance_records ?? "-"}
           </p>
         </Card>
       </div>
